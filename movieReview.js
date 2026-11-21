@@ -8,23 +8,6 @@ let timer=null;
 const slidesList = [];
 slideNo.innerHTML=`${current+1}/${slidesList.length}`;
 
-function resizeSlides() {
-    const slides = document.querySelector('.slides');
-    if (!slides) return;
-
-    const baseWidth = 1200;
-    const baseHeight = 675;
-
-    const scale = Math.min(
-        window.innerWidth / baseWidth,
-        window.innerHeight / baseHeight
-    ) * 0.92;
-
-    slides.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    slides.style.left = '50%';
-    slides.style.top = '50%';
-}
-
 window.addEventListener('mousemove', () => {
     footer.classList.add('visible');
     clearTimeout(timer);
@@ -381,3 +364,36 @@ function decrypt(headText, contentText){
         setTimeout(() => decryptOption.remove(), 600);
     });
 }
+
+const baseDPR = window.devicePixelRatio || 1;
+
+function fitSlide() {
+    const padding = 16; // 8px breathing space on each side
+    const desktopZoom = (window.devicePixelRatio || 1) / baseDPR;
+
+    const availW = document.documentElement.clientWidth * desktopZoom - padding;
+    const availH = document.documentElement.clientHeight * desktopZoom - padding;
+
+    const scale = Math.min(availW / 1200, availH / 675);
+
+    if (desktopZoom > 1.05) {
+        // Allows scrolling around when zoomed in on desktop
+        slides.style.position = 'relative';
+        slides.style.top = '0';
+        slides.style.left = '0';
+        slides.style.transformOrigin = 'top left';
+        slides.style.transform = `scale(${scale})`;
+    } else {
+        // Keeps slide dead-center on mobile, tablets, and desktop
+        slides.style.position = 'fixed';
+        slides.style.top = '50%';
+        slides.style.left = '50%';
+        slides.style.transformOrigin = 'center center';
+        slides.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+}
+
+window.addEventListener('resize', fitSlide);
+fitSlide();
+
+
